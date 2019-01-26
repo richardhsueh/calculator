@@ -11,18 +11,29 @@ interface State {
 class App extends Component {
   state = {
     firstNum: "0",
-    secondNum: "0",
+    secondNum: "",
     currentOperator: "",
-    previousKeyType: ""
+    previousKeyType: "",
+    display: "firstNum"
   };
   render() {
-    const { firstNum, secondNum, currentOperator } = this.state;
+    const {
+      firstNum,
+      secondNum,
+      currentOperator,
+      previousKeyType,
+      display
+    } = this.state;
     return (
       <div className="App">
         <header className="App-header">
           <div className="calculator__container">
             <div className="calculator__screen">
-              <input type="text" value={firstNum} readOnly />
+              <input
+                type="text"
+                value={display === "firstNum" ? firstNum : secondNum}
+                readOnly
+              />
             </div>
             <div className="calculator__control">
               <button
@@ -31,7 +42,7 @@ class App extends Component {
                 onClick={this.onActionClick}
                 data-action="clear"
               >
-                {firstNum === "0" && secondNum === "" ? "AC" : "C"}
+                {firstNum === "0" && secondNum === "0" ? "AC" : "C"}
               </button>
               <button
                 type="button"
@@ -167,7 +178,7 @@ class App extends Component {
               <button
                 type="button"
                 className="number"
-                onClick={this.onNumberClick}
+                onClick={this.onDecimalClick}
                 value={"."}
               >
                 .
@@ -204,28 +215,78 @@ class App extends Component {
         break;
     }
     this.setState({
-      firstNum: result,
-      secondNum: '0',
+      firstNum: result.toString(),
+      secondNum: "",
       currentOperator: "",
-      previousKeyType: ""
-    })
+      previousKeyType: "",
+      display: "firstNum"
+    });
   };
 
   onNumberClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     const { value } = e.currentTarget;
-    const { firstNum, secondNum, previousKeyType } = this.state;
+    const {
+      firstNum,
+      secondNum,
+      previousKeyType,
+      currentOperator
+    } = this.state;
 
-    if (previousKeyType !== "operator" && secondNum === "0") {
+    //reset form if user click 0 after a calculation
+    if (secondNum === "" && value === "0" && currentOperator === "") {
+      this.resetCalculator();
+      return;
+    } else if (secondNum === "" && value !== "0" && currentOperator === "") {
+      this.resetCalculator(value);
+      return;
+    }
+
+    // check if user selected a operator, if not update firstNum
+    if (previousKeyType !== "operator" && secondNum === "") {
       this.setState({
         firstNum: firstNum === "0" ? `${value}` : `${firstNum}${value}`,
-        previousKeyType: "number"
+        previousKeyType: "number",
+        display: "firstNum"
       });
     } else {
       this.setState({
-        secondNum: secondNum === "0" ? `${value}` : `${secondNum}${value}`,
-        previousKeyType: "number"
+        secondNum: secondNum === "" ? `${value}` : `${secondNum}${value}`,
+        previousKeyType: "number",
+        display: "secondNum"
       });
     }
+  };
+
+  onDecimalClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    const { value } = e.currentTarget;
+    const { firstNum, secondNum, previousKeyType } = this.state;
+    if (previousKeyType !== "operator" && secondNum === "") {
+      if (!firstNum.includes(".")) {
+        this.setState({
+          firstNum: `${firstNum}${value}`,
+          previousKeyType: "number",
+          display: "firstNum"
+        });
+      }
+    } else {
+      if (!secondNum.includes(".")) {
+        this.setState({
+          secondNum: `${secondNum}${value}`,
+          previousKeyType: "number",
+          display: "secondNum"
+        });
+      }
+    }
+  };
+
+  resetCalculator = (number: string = "0") => {
+    this.setState({
+      firstNum: number,
+      secondNum: "",
+      currentOperator: "",
+      previousKeyType: "",
+      display: "firstNum"
+    });
   };
 
   onActionClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -237,18 +298,13 @@ class App extends Component {
       currentOperator,
       previousKeyType
     } = this.state;
-    console.log(action);
+
     switch (action) {
       case "clear":
-        this.setState({
-          firstNum: "0",
-          secondNum: "0",
-          currentOperator: "",
-          previousKeyType: ""
-        });
+        this.resetCalculator();
         return;
       case "alt":
-        if (previousKeyType !== "operator" && secondNum === "0") {
+        if (previousKeyType !== "operator" && secondNum === "") {
           this.setState(({ firstNum }: State) => ({
             firstNum: (parseInt(firstNum) * -1).toString()
           }));
@@ -267,10 +323,10 @@ class App extends Component {
         });
         return;
       case "times":
-        this.setState(({ firstNum, secondNum }: State) => ({
+        this.setState({
           currentOperator: "times",
           previousKeyType: "operator"
-        }));
+        });
         return;
       case "minus":
         this.setState({
