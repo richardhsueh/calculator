@@ -1,0 +1,90 @@
+$darkgrey: rgb(59, 54, 39);
+$grey: rgb(77, 73, 69);
+$lightgrey: rgb(106, 103, 99);
+$orange: rgb(255, 159, 10);
+$white: rgb(255, 255, 255);
+.App {
+    text-align: center;
+}
+
+.App-logo {
+    animation: App-logo-spin infinite 20s linear;
+    height: 40vmin;
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.calculator__container {
+    width: 300px;
+    height: 415px;
+    background: #3b3627;
+    border-radius: 4px;
+    box-shadow: 2px 2px 20px 5px #00000026;
+    overflow: hidden;
+    position: relative;
+    .calculator__screen {
+        height: 100px;
+        background: $darkgrey;
+        font-size: 40px;
+        text-align: right; // padding: 30px 10px 5px 10px;
+        display: block;
+        position: relative;
+        input {
+            width: calc(100% - 20px);
+            background: transparent;
+            border: 0px;
+            font-size: 50px;
+            text-align: right;
+            color: $white;
+            position: absolute;
+            top: 35px;
+            left: 0;
+            padding: 0 10px;
+        }
+    }
+    .calculator__control {
+        width: 100%;
+        height: 315px;
+        background: $grey;
+        button {
+            border: 0px;
+            box-sizing: border-box;
+            font-size: 24px;
+            color: #fff;
+            &:focus {
+                outline: none;
+            }
+        }
+        .number {
+            width: 25%;
+            height: 63px;
+            background: $lightgrey;
+            &[value='0'] {
+                width: 50%;
+            }
+        }
+        .operator {
+            width: 25%;
+            height: 63px;
+            background: $orange;
+            box-sizing: border-box;
+            &.active {
+                border: 1px solid white;
+            }
+        }
+        .function {
+            width: 25%;
+            height: 63px;
+            background: $grey;
+        }
+    }
+}
