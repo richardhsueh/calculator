@@ -27,6 +27,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
+          <pre>{JSON.stringify(this.state, null, 2)}</pre>
           <div className="calculator__container">
             <div className="calculator__screen">
               <input
@@ -42,7 +43,7 @@ class App extends Component {
                 onClick={this.onActionClick}
                 data-action="clear"
               >
-                {firstNum === "0" && secondNum === "0" ? "AC" : "C"}
+                {firstNum === "0" && secondNum === "" ? "AC" : "C"}
               </button>
               <button
                 type="button"
@@ -218,7 +219,7 @@ class App extends Component {
       firstNum: result.toString(),
       secondNum: "",
       currentOperator: "",
-      previousKeyType: "",
+      previousKeyType: "operator",
       display: "firstNum"
     });
   };
@@ -236,7 +237,12 @@ class App extends Component {
     if (secondNum === "" && value === "0" && currentOperator === "") {
       this.resetCalculator();
       return;
-    } else if (secondNum === "" && value !== "0" && currentOperator === "") {
+    } else if (
+      secondNum === "" &&
+      value !== "0" &&
+      currentOperator === "" &&
+      previousKeyType === "operator"
+    ) {
       this.resetCalculator(value);
       return;
     }
@@ -296,7 +302,8 @@ class App extends Component {
       firstNum,
       secondNum,
       currentOperator,
-      previousKeyType
+      previousKeyType,
+      display
     } = this.state;
 
     switch (action) {
@@ -304,17 +311,26 @@ class App extends Component {
         this.resetCalculator();
         return;
       case "alt":
-        if (previousKeyType !== "operator" && secondNum === "") {
-          this.setState(({ firstNum }: State) => ({
-            firstNum: (parseInt(firstNum) * -1).toString()
-          }));
+        if (display === 'firstNum') {
+          this.setState({
+            firstNum: (parseFloat(firstNum) * -1).toString()
+          });
         } else {
-          this.setState(({ secondNum }: State) => ({
-            secondNum: (parseInt(secondNum) * -1).toString()
-          }));
+          this.setState({
+            secondNum: (parseFloat(secondNum) * -1).toString()
+          });
         }
         return;
-      case "percent":
+      case "percentage":
+        if (display === 'firstNum') {
+          this.setState({
+            firstNum: (parseFloat(firstNum) / 100).toString()
+          });
+        } else {
+          this.setState({
+            secondNum: (parseFloat(secondNum) / 100).toString()
+          });
+        }
         return;
       case "divide":
         this.setState({
